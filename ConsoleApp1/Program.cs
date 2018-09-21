@@ -32,7 +32,7 @@ namespace ConsoleApp1
         {
             
             public int PointsDeVie {get; private set;}
-            private De de;
+            
 
             public bool EstVivant {
                 get
@@ -50,13 +50,13 @@ namespace ConsoleApp1
             public Joueur(int ptsDeVie)
             {
                 PointsDeVie = ptsDeVie;
-                de = new De();
+                
             }
 
             public void Attaque( MonstreFacile monstre)
             {
-                int deJoueur = de.LanceLeDe();
-                int deMonstre = de.LanceLeDe();
+                int deJoueur = De.LanceLeDe();
+                int deMonstre = De.LanceLeDe();
 
                 if (deJoueur >= deMonstre) {
                     monstre.EstVaincu();
@@ -75,20 +75,24 @@ namespace ConsoleApp1
 
             public int LanceLeDe()
             {
-                return de.LanceLeDe();
+                return De.LanceLeDe();
+            }
+            public int LanceLeDe( int valeur)
+            {
+                return De.LanceLeDe(valeur);
             }
         }
 
         public class MonstreFacile
         {
             protected const int degatsBase = 10;
-            protected De de;
+            
             public bool EstVivant {get; private set;}
 
             public MonstreFacile()
             {
                 EstVivant = true;
-                de = new De();
+                
             }
 
             public void EstVaincu()
@@ -98,11 +102,11 @@ namespace ConsoleApp1
 
             public virtual void Attaque(Joueur joueur)
             {
-                int deMonstre = de.LanceLeDe();
-                int deJoueur = de.LanceLeDe();
+                int deMonstre = De.LanceLeDe();
+                int deJoueur = De.LanceLeDe();
                 if (deMonstre > deJoueur)
                 {
-                    int perçageBouclier = de.LanceLeDe();
+                    int perçageBouclier = De.LanceLeDe();
                     if (perçageBouclier > 2)
                     {
                         joueur.SubitDesDegats(degatsBase);
@@ -118,7 +122,7 @@ namespace ConsoleApp1
 
             public int LanceLeDe()
             {
-                return de.LanceLeDe();
+                return De.LanceLeDe();
             }
 
 
@@ -136,7 +140,7 @@ namespace ConsoleApp1
 
             public int AttaqueMagique()
             {
-                int rand = de.LanceLeDe();
+                int rand = De.LanceLeDe();
                 if(rand == 6)
                 {
                     rand = 0;
@@ -145,18 +149,21 @@ namespace ConsoleApp1
             }
         }
 
-        public class De
+        public static class De
         {
-            private Random random;
+            private  static Random random = new Random();
 
-            public De()
-            {
-                random = new Random();
-            }
+            
 
-            public int LanceLeDe()
+            public static int LanceLeDe()
             {
                 return random.Next(1, 7);
+            }
+
+            public static int LanceLeDe(int valeur)
+            {
+                return random.Next(1, valeur);
+
             }
         }
 
@@ -208,7 +215,7 @@ namespace ConsoleApp1
                     break;
                 }
             }
-            Console.Write("Vous avez tué {0} monstres faciles et {1} monstres difficiles. Vous avez {2} points.", mfVaincus, mdVaincus, mfVaincus + mdVaincus * 2);
+            Console.Write($"Vous avez tué {mfVaincus} monstres faciles et {mdVaincus} monstres difficiles. Vous avez {mfVaincus + mdVaincus * 2} points.");
         }
     }
 }
