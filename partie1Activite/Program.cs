@@ -104,40 +104,36 @@ namespace ActiviteOrienteObjet
         }
     }
 
-    public class MonstreFacile
+    public class MonstreFacile : Personnage
     {
         private const int degats = 10;
-        public bool EstVivant { get; private set; }
-
+        public override bool EstVivant { get { return estVivant; }  }
+        protected bool estVivant;
         public MonstreFacile()
         {
-            EstVivant = true;
+            estVivant = true;
         }
 
-        public virtual void Attaque(Joueur joueur)
+        public override void Attaque(Personnage joueur)
         {
             int lanceMonstre = LanceLeDe();
             int lanceJoueur = joueur.LanceLeDe();
             if (lanceMonstre > lanceJoueur)
                 joueur.SubitDegats(degats);
         }
-
-        public void SubitDegats()
+        public override void SubitDegats(int nb)
         {
-            EstVivant = false;
-        }
+            estVivant = false;
+        }     
 
-        public int LanceLeDe()
-        {
-            return De.LanceLeDe();
-        }
+        
     }
 
     public class MonstreDifficile : MonstreFacile
     {
         private const int degatsSort = 5;
 
-        public override void Attaque(Joueur joueur)
+        public override void Attaque(Personnage joueur)
         {
             base.Attaque(joueur);
             joueur.SubitDegats(SortMagique());
@@ -152,44 +148,23 @@ namespace ActiviteOrienteObjet
         }
     }
 
-    public class Joueur
+    public class Joueur : PersonnageAPointsDeVie
     {
-        public int PtsDeVies { get; private set; }
-        public bool EstVivant
-        {
-            get { return PtsDeVies > 0; }
-        }
-
         public Joueur(int points)
         {
             PtsDeVies = points;
         }
 
-        public void Attaque(MonstreFacile monstre)
+        public override void Attaque(Personnage monstre)
         {
             int lanceJoueur = LanceLeDe();
             int lanceMonstre = monstre.LanceLeDe();
             if (lanceJoueur >= lanceMonstre)
-                monstre.SubitDegats();
-        }
+                monstre.SubitDegats(1);
+        }               
+                
 
-        public void Attaque(BossDeFin boss)
-        {
-            int nbPoints = LanceLeDe(26);
-            boss.SubitDegats(nbPoints);
-        }
-
-        public int LanceLeDe()
-        {
-            return De.LanceLeDe();
-        }
-
-        public int LanceLeDe(int valeur)
-        {
-            return De.LanceLeDe(valeur);
-        }
-
-        public void SubitDegats(int degats)
+        public override void SubitDegats(int degats)
         {
             if (!BouclierFonctionne())
                 PtsDeVies -= degats;
@@ -201,33 +176,56 @@ namespace ActiviteOrienteObjet
         }
     }
 
-    public class BossDeFin
+    public class BossDeFin:PersonnageAPointsDeVie
     {
-        public int PtsDeVies { get; private set; }
-        public bool EstVivant
-        {
-            get { return PtsDeVies > 0; }
-        }
-
+        
+        
         public BossDeFin(int points)
         {
             PtsDeVies = points;
-        }
+        }      
+        
+    }
 
-        public void Attaque(Joueur personnage)
-        {
-            int nbPoints = LanceLeDe(26);
-            personnage.SubitDegats(nbPoints);
-        }
+    public abstract class Personnage
+    {
+        public abstract void Attaque(Personnage p);
 
-        public void SubitDegats(int valeur)
-        {
-            PtsDeVies -= valeur;
-        }
+        public abstract void SubitDegats(int d);
 
-        private int LanceLeDe(int valeur)
+        public abstract bool EstVivant { get; }
+
+        public int LanceLeDe()
         {
-            return De.LanceLeDe(valeur);
+            return De.LanceLeDe();
         }
     }
+
+    public class PersonnageAPointsDeVie : Personnage
+    {
+        public int PtsDeVies { get; protected set; }
+
+        public override void Attaque(Personnage p)
+        {
+            int nbPoints = LanceLeDe(26);
+            p.SubitDegats(nbPoints);
+        }
+
+        protected int LanceLeDe(int value)
+        {
+            return De.LanceLeDe(value);
+        }
+
+        public override void SubitDegats(int d)
+        {
+            PtsDeVies -= d;
+        }
+
+        public override bool EstVivant
+        {
+            get { return PtsDeVies > 0; }
+        }
+    }
+
+
 }
