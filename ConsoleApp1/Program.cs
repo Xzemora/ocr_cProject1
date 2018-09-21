@@ -11,10 +11,15 @@ namespace ConsoleApp1
         static void Main(string[] args)
         {
             ConsoleKeyInfo playAgain;
-
+            Console.WriteLine("Veuillez saisir le nom de votre personnage :");
+            string name = Console.ReadLine();
             do
             {
-                Jeu();
+                
+                if (Jeu(name))
+                {
+                    NiveauFinal(name);
+                }
 
                 Console.WriteLine("Voulez-vous jouer à nouveau: O/N");
 
@@ -30,27 +35,21 @@ namespace ConsoleApp1
 
         public class Joueur
         {
-            
+            public string nom;
             public int PointsDeVie {get; private set;}
             
 
             public bool EstVivant {
                 get
                 {
-                    if (PointsDeVie > 0)
-                    {
-                        return true;
-                    } else
-                    {
-                        return false;
-                    }
+                    return PointsDeVie > 0;
                 }
             }
 
-            public Joueur(int ptsDeVie)
+            public Joueur(int ptsDeVie, string name )
             {
                 PointsDeVie = ptsDeVie;
-                
+                this.nom = name;
             }
 
             public void Attaque( MonstreFacile monstre)
@@ -73,13 +72,11 @@ namespace ConsoleApp1
                 PointsDeVie -= degats;
             }
 
-            public int LanceLeDe()
+            public void Attaque (BossDeFin boss)
             {
-                return De.LanceLeDe();
-            }
-            public int LanceLeDe( int valeur)
-            {
-                return De.LanceLeDe(valeur);
+                int ptsAttaque = De.LanceLeDe(26);
+                boss.SubitDesDegats(ptsAttaque);
+                Console.WriteLine($"{this.nom} attaque le Boss pour {ptsAttaque} points de vie.");
             }
         }
 
@@ -118,12 +115,7 @@ namespace ConsoleApp1
                     return;
                 }
                 
-            }
-
-            public int LanceLeDe()
-            {
-                return De.LanceLeDe();
-            }
+            }      
 
 
         }
@@ -149,6 +141,41 @@ namespace ConsoleApp1
             }
         }
 
+        public class BossDeFin
+        {
+            public string nom = "Boss";
+            public int PointsDeVie { get; private set; }
+
+            public BossDeFin(int pts)
+            {
+                PointsDeVie = pts;
+                
+            }
+
+            public bool EstVivant { get { return PointsDeVie > 0; } }
+
+            public void Attaque(Joueur joueur)
+            {
+                int ptsAttaque = De.LanceLeDe(26);
+                int perçageBouclier = De.LanceLeDe();
+                if (perçageBouclier > 2)
+                {
+                    joueur.SubitDesDegats(ptsAttaque);
+                    Console.WriteLine($"{this.nom} attaque le héros pour {ptsAttaque} points de vie.");
+                }
+                else
+                {
+                    Console.WriteLine($"{joueur.nom} bloque l'attaque avec son bouclier.");
+                    return;
+                }
+            }
+
+
+            public void SubitDesDegats(int ptsAttaque)
+            {
+                PointsDeVie -= ptsAttaque;
+            }
+        }
         public static class De
         {
             private  static Random random = new Random();
@@ -182,13 +209,16 @@ namespace ConsoleApp1
             }
         }
 
-        private static void Jeu()
+        private static bool Jeu(string name)
         {
-            Joueur nouveauJoueur = new Joueur(150);
+            
+            Joueur nouveauJoueur = new Joueur(150,name);
+            
             int mfVaincus = 0;
             int mdVaincus = 0;
+            int points  = 0;
 
-            while (nouveauJoueur.EstVivant)
+            while (nouveauJoueur.EstVivant && points<50)
             {
                 
                 MonstreFacile monstre = RandomizeMonster();
@@ -209,13 +239,58 @@ namespace ConsoleApp1
                     {
                         mfVaincus++;
                     }
+                    points = mfVaincus + mdVaincus * 2;
+
+
                 } else
                 {
-                    Console.WriteLine("Vous avez été vaincu.");
+                    Console.WriteLine($"{nouveauJoueur.nom} avez été vaincu.");
                     break;
                 }
             }
-            Console.Write($"Vous avez tué {mfVaincus} monstres faciles et {mdVaincus} monstres difficiles. Vous avez {mfVaincus + mdVaincus * 2} points.");
+            Console.Write($"{nouveauJoueur.nom} a tué {mfVaincus} monstres faciles et {mdVaincus} monstres difficiles. Vous avez {points} points.");
+            if (points >= 50)
+            {
+                Console.WriteLine("Bravo. Vous avez maintenant suffisamment d'expérience pour tenter de combattre l'impitoyable Boss de Fin. Voulez-vous tenter votre chance: O/N ");
+                ConsoleKeyInfo continuer = Console.ReadKey(true);
+                return continuer.Key == ConsoleKey.O;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static void NiveauFinal(string name)
+
+        {
+
+            Joueur player = new Joueur(200, name);
+            
+            BossDeFin boss = new BossDeFin(250);
+
+            while (player.EstVivant && boss.EstVivant)
+
+            {
+                Console.WriteLine($"Il reste {player.PointsDeVie} points de vie à {player.nom} et il reste {boss.PointsDeVie} points de vie au boss de fin.");
+                player.Attaque(boss);
+
+                if (boss.EstVivant)
+
+                    boss.Attaque(player);
+
+
+
+            }
+
+            if (player.EstVivant)
+
+                Console.WriteLine("Bravo, vous avez sauvé la princesse (ou le prince !)");
+
+            else
+
+                Console.WriteLine("Game over...");
+
         }
     }
 }
