@@ -11,15 +11,19 @@ namespace ConsoleApp1
         static void Main(string[] args)
         {
             ConsoleKeyInfo playAgain;
+
             do
             {
                 Jeu();
+
                 Console.WriteLine("Voulez-vous jouer à nouveau: O/N");
-                 playAgain = Console.ReadKey(true);
+
+                playAgain = Console.ReadKey(true);
+
             } while (playAgain.Key == ConsoleKey.O);
             
 
-                Console.WriteLine("Merci d'avoir joué. A bientôt. Appuyez sur une touche pour fermer.");
+            Console.WriteLine("Merci d'avoir joué. A bientôt. Appuyez sur une touche pour fermer.");
             Console.ReadKey(true);
             
         }
@@ -29,8 +33,10 @@ namespace ConsoleApp1
             
             public int PointsDeVie {get; private set;}
             private De de;
+
             public bool EstVivant {
-                get {
+                get
+                {
                     if (PointsDeVie > 0)
                     {
                         return true;
@@ -39,16 +45,19 @@ namespace ConsoleApp1
                         return false;
                     }
                 }
-                }
+            }
+
             public Joueur(int ptsDeVie)
             {
                 PointsDeVie = ptsDeVie;
                 de = new De();
             }
+
             public void Attaque( MonstreFacile monstre)
             {
                 int deJoueur = de.LanceLeDe();
                 int deMonstre = de.LanceLeDe();
+
                 if (deJoueur >= deMonstre) {
                     monstre.EstVaincu();
                 }
@@ -58,10 +67,12 @@ namespace ConsoleApp1
                 }
                 
             }
+
             public void SubitDesDegats(int degats)
             {
                 PointsDeVie -= degats;
             }
+
             public int LanceLeDe()
             {
                 return de.LanceLeDe();
@@ -73,15 +84,18 @@ namespace ConsoleApp1
             protected const int degatsBase = 10;
             protected De de;
             public bool EstVivant {get; private set;}
+
             public MonstreFacile()
             {
                 EstVivant = true;
                 de = new De();
             }
+
             public void EstVaincu()
             {
                 EstVivant = false;
             }
+
             public virtual void Attaque(Joueur joueur)
             {
                 int deMonstre = de.LanceLeDe();
@@ -101,6 +115,7 @@ namespace ConsoleApp1
                 }
                 
             }
+
             public int LanceLeDe()
             {
                 return de.LanceLeDe();
@@ -112,11 +127,13 @@ namespace ConsoleApp1
         public class MonstreDifficile : MonstreFacile
         {
             private const int degatsMagique = 5;
+
             public override void Attaque(Joueur joueur)
             {
                 base.Attaque(joueur);
                 joueur.SubitDesDegats(AttaqueMagique());
             }
+
             public int AttaqueMagique()
             {
                 int rand = de.LanceLeDe();
@@ -148,7 +165,8 @@ namespace ConsoleApp1
         private static MonstreFacile RandomizeMonster()
         {
             int rand = random.Next(2);
-            if(rand == 0)
+
+            if (rand == 0)
             {
                 return new MonstreFacile();
             } else
