@@ -74,7 +74,7 @@ namespace ActiviteOrienteObjet
 
         private static void Jeu2()
         {
-            Joueur nicolas = new Joueur(150);
+            Joueur nicolas = new Joueur(200);
             BossDeFin boss = new BossDeFin(250);
             while (nicolas.EstVivant && boss.EstVivant)
             {
@@ -157,10 +157,17 @@ namespace ActiviteOrienteObjet
 
         public override void Attaque(Personnage monstre)
         {
-            int lanceJoueur = LanceLeDe();
-            int lanceMonstre = monstre.LanceLeDe();
-            if (lanceJoueur >= lanceMonstre)
-                monstre.SubitDegats(1);
+            if(monstre is MonstreFacile)
+            {
+                int lanceJoueur = LanceLeDe();
+                int lanceMonstre = monstre.LanceLeDe();
+                if (lanceJoueur >= lanceMonstre)
+                    monstre.SubitDegats(1);
+            } else if (monstre is BossDeFin)
+            {
+                base.Attaque(monstre);
+            }
+            
         }               
                 
 
