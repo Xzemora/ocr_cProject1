@@ -74,7 +74,7 @@ namespace ActiviteOrienteObjet
 
         private static void Jeu2()
         {
-            Joueur nicolas = new Joueur(200);
+            Joueur nicolas = new Joueur(150);
             BossDeFin boss = new BossDeFin(250);
             while (nicolas.EstVivant && boss.EstVivant)
             {
