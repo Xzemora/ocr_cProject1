@@ -11,17 +11,28 @@ namespace Tp_Meteo
         static void Main(string[] args)
         {
             WeatherEngine engine = new WeatherEngine();
+            int countWC = 0;
+            
+            engine.WeatherChange += (delegate (Object sender, WeatherEngine.MeteoEventArgs meteo) {
+                countWC++;                
+            });
+            
 
-            engine.WeatherChange += Engine_WeatherChange;
-            engine.GetWeather(100);
+            Console.WriteLine("Veuiller rentrer la taille de l'échantillon à analyser:");
+            string nbStr = Console.ReadLine();
+            if(Int32.TryParse(nbStr, out int nb))
+            {
+                engine.GetWeather(nb);
+                Console.WriteLine($"La météo à changé {countWC} fois.");
+                int psSoleil = 100*engine.countSun / nb;
+                Console.WriteLine($"Il a fait soleil {psSoleil}% du temps.");
+            }      
            
             Console.ReadLine();
         }
-
-        private static void Engine_WeatherChange(object sender, WeatherEngine.MeteoEventArgs meteo)
-        {
-            Console.WriteLine(meteo.Meteo);
-        }
+        
+        //private static void Engine_WeatherChange(object sender, WeatherEngine.MeteoEventArgs meteo)
+        
     }
     public enum Meteo {soleil, nuageux, pluvieux, orageux };
 
@@ -31,10 +42,12 @@ namespace Tp_Meteo
     {
         private Random random = new Random();
         private Meteo _meteoActuelle;
+        public int countSun = 0;
 
         //public int[] GetWeather(int nb)
         public void GetWeather(int nb)
         {
+            
             //int[] weatherStats = new int[nb];
             for (int i = 0; i <= nb; i++)
             {
@@ -42,7 +55,11 @@ namespace Tp_Meteo
                 //weatherStats[i].SayWeather();
                 int n = random.Next(0, 101);
                 Meteo meteo = n.SayWeather();
-                this.MeteoActuelle = meteo;
+                MeteoActuelle = meteo;
+                if(MeteoActuelle == Meteo.soleil)
+                {
+                    countSun++;
+                }
             }
             //return weatherStats; 
         }
@@ -51,7 +68,7 @@ namespace Tp_Meteo
         {
             public MeteoEventArgs(Meteo meteo)
             {
-                this.Meteo = meteo;
+                Meteo = meteo;
             }
 
             public Meteo Meteo
